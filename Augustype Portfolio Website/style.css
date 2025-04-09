@@ -1,0 +1,22 @@
+.icon-square{
+    border-radius: 0.75rem;
+    height: 3rem;
+    width: 3rem;
+}
+
+.project-card {
+    justify-content: center;
+}
+
+.flex-md-equal > * {
+    flex: 1 1 0%;
+  }
+
+.nav-link {
+color:black;
+}
+
+.bg-highlight{
+    background-color: #f2efeb;
+}
+
