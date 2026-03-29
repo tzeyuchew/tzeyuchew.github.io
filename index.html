@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Food Picker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
+    --text: #1a1a1a; --text2: #6b6b6b; --text3: #a0a09a;
+    --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+    --radius: 10px; --radius-lg: 16px;
+    --green-bg: #EAF3DE; --green-text: #3B6D11;
+    --red-bg: #FCEBEB; --red-text: #A32D2D;
+    --yellow-bg: #FAEEDA; --yellow-text: #854F0B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1c; --bg2: #252525; --bg3: #2e2e2e;
+      --text: #f0f0ee; --text2: #a0a09a; --text3: #6b6b6b;
+      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.20);
+      --green-bg: #173404; --green-text: #C0DD97;
+      --red-bg: #501313; --red-text: #F7C1C1;
+      --yellow-bg: #412402; --yellow-text: #FAC775;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); min-height: 100vh; display: flex; justify-content: center; padding: 2rem 1rem 4rem; }
+  .app { background: var(--bg); border-radius: 24px; padding: 2rem 1.75rem; width: 100%; max-width: 420px; height: fit-content; border: 0.5px solid var(--border); }
+  .logo { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 1.5rem; }
+  h1 { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.15; margin-bottom: 0.3rem; }
+  .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
+  .section { margin-bottom: 1.5rem; }
+  .label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
+  .label .val { font-size: 13px; font-weight: 600; color: var(--text); text-transform: none; letter-spacing: 0; }
+
+  .loc-box { border: 0.5px solid var(--border2); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.5rem; }
+  .loc-detect { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--bg); transition: background 0.15s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .loc-detect:hover { background: var(--bg2); }
+  .loc-detect:active { background: var(--bg3); }
+  .loc-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--bg2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.3s; }
+  .loc-body { flex: 1; min-width: 0; }
+  .loc-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .loc-sub { font-size: 12px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--bg3); border-radius: 2px; outline: none; border: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--text); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--text); cursor: pointer; border: none; }
+
+  .price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .price-btn { padding: 10px 4px 8px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg2); color: var(--text3); font-size: 10px; font-family: inherit; cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+  .price-btn .tier { display: block; font-size: 11px; font-weight: 700; color: var(--text2); margin-bottom: 2px; }
+  .price-btn.active { border-color: var(--text); background: var(--bg); }
+  .price-btn.active .tier { color: var(--text); }
+
+  .rating-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .rating-btn { padding: 8px 4px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg2); color: var(--text3); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s; text-align: center; -webkit-tap-highlight-color: transparent; }
+  .rating-btn.active { border-color: var(--yellow-text); background: var(--yellow-bg); color: var(--yellow-text); }
+  .rating-hint { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
+  .toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
+  .toggle-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .track { position: absolute; inset: 0; border-radius: 13px; background: var(--border2); cursor: pointer; transition: background 0.2s; }
+  .track::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; border-radius: 50%; background: white; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+  .toggle input:checked + .track { background: var(--text); }
+  .toggle input:checked + .track::before { transform: translateX(18px); }
+
+  .pick-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: var(--radius-lg); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 1.75rem; transition: opacity 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
+  .pick-btn:hover { opacity: 0.88; }
+  .pick-btn:active { transform: scale(0.98); }
+  .pick-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  .status { font-size: 13px; color: var(--text3); text-align: center; margin-top: 1rem; min-height: 20px; }
+  .error { font-size: 13px; color: var(--red-text); background: var(--red-bg); padding: 10px 14px; border-radius: var(--radius); margin-top: 10px; display: none; line-height: 1.5; }
+
+  .result-card { margin-top: 1.5rem; border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; display: none; }
+  .result-card.show { display: block; animation: up 0.35s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .result-header { padding: 1.25rem 1.25rem 0.75rem; }
+  .result-cat { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; background: var(--bg2); color: var(--text3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .result-name { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 6px; }
+  .result-addr { font-size: 13px; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2); }
+  .chip.green { background: var(--green-bg); color: var(--green-text); border-color: transparent; }
+  .chip.red { background: var(--red-bg); color: var(--red-text); border-color: transparent; }
+  .chip.star { background: var(--yellow-bg); color: var(--yellow-text); border-color: transparent; }
+  .result-dist { font-size: 13px; color: var(--text3); padding: 8px 1.25rem 1rem; }
+  .result-actions { display: grid; grid-template-columns: 1fr 1fr; border-top: 0.5px solid var(--border); }
+  .action-btn { padding: 14px 10px; font-size: 13px; font-weight: 600; font-family: inherit; border: none; background: transparent; color: var(--text2); cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+  .action-btn:hover { background: var(--bg2); }
+  .action-btn:active { background: var(--bg3); }
+  .action-btn.primary { color: var(--text); border-left: 0.5px solid var(--border); }
+
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border2); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .note { font-size: 11px; color: var(--text3); line-height: 1.6; padding: 10px 12px; background: var(--bg2); border-radius: var(--radius); margin-top: 1.5rem; }
+  .note a { color: var(--text2); }
+  #map { display: none; }
+
+  @media (max-width: 480px) {
+    body { padding: 0; }
+    .app { border-radius: 0; min-height: 100vh; border: none; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="logo">Food Picker</div>
+  <h1>What should<br>I eat today?</h1>
+  <p class="subtitle">Set your filters, we'll pick a place.</p>
+
+  <div class="loc-box">
+    <div class="loc-detect" onclick="getLocation()">
+      <div class="loc-icon" id="loc-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+        </svg>
+      </div>
+      <div class="loc-body">
+        <div class="loc-title" id="loc-title">Detect my location</div>
+        <div class="loc-sub" id="loc-sub">Tap to use GPS</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="label">Search radius <span class="val" id="radius-val">1.0 km</span></div>
+    <input type="range" min="1" max="20" value="5" step="1" id="radius-slider" oninput="updateRadius(this.value)">
+  </div>
+
+  <div class="section">
+    <div class="label" style="margin-bottom:10px;">Price range <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">tap to toggle</span></div>
+    <div class="price-grid">
+      <button class="price-btn active" data-price="0" onclick="togglePrice(this)"><span class="tier">RM 1–20</span>Budget</button>
+      <button class="price-btn active" data-price="1" onclick="togglePrice(this)"><span class="tier">RM 20–40</span>Casual</button>
+      <button class="price-btn active" data-price="2" onclick="togglePrice(this)"><span class="tier">RM 40–60</span>Mid-range</button>
+      <button class="price-btn active" data-price="3" onclick="togglePrice(this)"><span class="tier">RM 60+</span>Splurge</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="label" style="margin-bottom:10px;">Minimum rating <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">optional</span></div>
+    <div class="rating-grid">
+      <button class="rating-btn" data-rating="0" onclick="setRating(this)">Any</button>
+      <button class="rating-btn" data-rating="3" onclick="setRating(this)">3.0+</button>
+      <button class="rating-btn" data-rating="3.5" onclick="setRating(this)">3.5+</button>
+      <button class="rating-btn" data-rating="4" onclick="setRating(this)">4.0+</button>
+      <button class="rating-btn" data-rating="4.5" onclick="setRating(this)">4.5+</button>
+    </div>
+    <div class="rating-hint" id="rating-hint">No minimum rating filter applied</div>
+  </div>
+
+  <div class="section">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Open now only</div>
+        <div class="toggle-sub">Hide places that are currently closed</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="open-now" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+  </div>
+
+  <div id="error" class="error"></div>
+
+  <button class="pick-btn" id="pick-btn" onclick="pickPlace()" disabled>
+    Pick a place for me
+  </button>
+
+  <div class="status" id="status"></div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div class="result-cat" id="r-cat">Restaurant</div>
+      <div class="result-name" id="r-name">—</div>
+      <div class="result-addr" id="r-addr">—</div>
+      <div class="chips" id="r-chips"></div>
+    </div>
+    <div class="result-dist" id="r-dist"></div>
+    <div class="result-actions">
+      <button class="action-btn" onclick="reroll()">Try another</button>
+      <button class="action-btn primary" onclick="openMaps()">Open in Maps ↗</button>
+    </div>
+  </div>
+
+  <div class="note">
+    Powered by Google Places · <a href="https://console.cloud.google.com/apis/dashboard" target="_blank">Monitor usage ↗</a>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<script>
+const API_KEY = 'AIzaSyDXFBypFW7UhyjzjgYHLL2nnAG6gf4Igio';
+let userLat = null, userLng = null, currentPlace = null, rawPool = [], service = null;
+let minRating = 0;
+
+window.initMap = function () {
+  try {
+    const map = new google.maps.Map(document.getElementById('map'), { center: { lat: 3.139, lng: 101.686 }, zoom: 15 });
+    service = new google.maps.places.PlacesService(map);
+    checkReady();
+  } catch (e) {
+    showError('Maps failed to load: ' + e.message);
+  }
+};
+
+window.gm_authFailure = function () {
+  showError('Google Maps auth failed. Check your API key restrictions in Google Cloud Console.');
+};
+
+function updateRadius(v) {
+  const km = v <= 5 ? (v * 0.2).toFixed(1) : ((v - 5) * 0.5 + 1).toFixed(1);
+  document.getElementById('radius-val').textContent = km + ' km';
+}
+function getRadiusMeters() {
+  const v = parseInt(document.getElementById('radius-slider').value);
+  const km = v <= 5 ? v * 0.2 : (v - 5) * 0.5 + 1;
+  return Math.round(km * 1000);
+}
+
+function togglePrice(btn) {
+  btn.classList.toggle('active');
+  // re-filter existing pool without new API call
+  applyFiltersToPool();
+}
+
+function setRating(btn) {
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  minRating = parseFloat(btn.dataset.rating);
+  const hint = document.getElementById('rating-hint');
+  hint.textContent = minRating === 0 ? 'No minimum rating filter applied' : `Only showing places rated ${minRating}★ and above`;
+  // re-filter existing pool without new API call
+  applyFiltersToPool();
+}
+
+function getActivePriceLevels() {
+  return [...document.querySelectorAll('.price-btn.active')].map(b => parseInt(b.dataset.price));
+}
+
+// Apply current filters to the raw pool and pick a new result
+function applyFiltersToPool() {
+  if (!rawPool.length) return;
+  const prices = getActivePriceLevels();
+  let filtered = rawPool;
+
+  if (prices.length < 4) {
+    const pf = filtered.filter(p => p.price_level === undefined || prices.includes(p.price_level));
+    if (pf.length > 0) filtered = pf;
+  }
+
+  if (minRating > 0) {
+    const rf = filtered.filter(p => !p.rating || p.rating >= minRating);
+    if (rf.length > 0) filtered = rf;
+  }
+
+  if (!filtered.length) {
+    setStatus('No places match your current filters — try loosening them.');
+    document.getElementById('result-card').classList.remove('show');
+    return;
+  }
+
+  const others = filtered.filter(p => p.place_id !== currentPlace?.place_id);
+  const list = others.length > 0 ? others : filtered;
+  currentPlace = list[Math.floor(Math.random() * list.length)];
+  document.getElementById('result-card').classList.remove('show');
+  setTimeout(() => {
+    showResult(currentPlace);
+    setStatus(`${filtered.length} place${filtered.length !== 1 ? 's' : ''} matched · picked one for you`);
+  }, 60);
+}
+
+function checkReady() {
+  document.getElementById('pick-btn').disabled = !(userLat !== null && service !== null);
+}
+
+function showError(msg) {
+  const el = document.getElementById('error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+function setStatus(msg, loading = false) {
+  document.getElementById('status').innerHTML = loading
+    ? `<span class="spinner"></span>${msg}` : msg;
+}
+
+function getLocation() {
+  const icon = document.getElementById('loc-icon');
+  const title = document.getElementById('loc-title');
+  const sub = document.getElementById('loc-sub');
+  icon.style.background = 'var(--yellow-bg)';
+  title.textContent = 'Detecting location…';
+  sub.textContent = 'Allow permission if prompted';
+  showError('');
+
+  if (!navigator.geolocation) {
+    icon.style.background = 'var(--red-bg)';
+    title.textContent = 'GPS not supported';
+    sub.textContent = 'Try Chrome or Edge';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      icon.style.background = 'var(--green-bg)';
+      title.textContent = 'Location detected';
+      sub.textContent = `${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
+      checkReady();
+    },
+    () => {
+      icon.style.background = 'var(--red-bg)';
+      title.textContent = 'Location blocked';
+      sub.textContent = 'Check browser permissions and try again';
+      showError('Location access denied. Click the lock icon in your browser address bar, allow location, then tap again.');
+    },
+    { timeout: 10000, enableHighAccuracy: true }
+  );
+}
+
+function pickPlace() {
+  const prices = getActivePriceLevels();
+  const openNow = document.getElementById('open-now').checked;
+  const radius = getRadiusMeters();
+
+  if (!userLat || !service) return;
+  if (prices.length === 0) { showError('Select at least one price range.'); return; }
+  showError('');
+
+  const btn = document.getElementById('pick-btn');
+  btn.disabled = true;
+  setStatus('Searching nearby…', true);
+  document.getElementById('result-card').classList.remove('show');
+
+  const request = {
+    location: new google.maps.LatLng(userLat, userLng),
+    radius: radius,
+    type: 'restaurant',
+    openNow: openNow,
+  };
+
+  service.nearbySearch(request, (results, status) => {
+    btn.disabled = false;
+
+    if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS || !results?.length) {
+      setStatus('');
+      showError('No restaurants found. Try a wider radius or turning off "Open now".');
+      return;
+    }
+
+    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+      setStatus('');
+      showError('Places API error: ' + status);
+      return;
+    }
+
+    // Store raw unfiltered results
+    rawPool = results;
+
+    // Apply all current filters
+    let filtered = rawPool;
+
+    if (prices.length < 4) {
+      const pf = filtered.filter(p => p.price_level === undefined || prices.includes(p.price_level));
+      if (pf.length > 0) filtered = pf;
+    }
+
+    if (minRating > 0) {
+      const rf = filtered.filter(p => !p.rating || p.rating >= minRating);
+      if (rf.length > 0) filtered = rf;
+    }
+
+    if (!filtered.length) {
+      setStatus('');
+      showError('No places match your filters. Try loosening price range or rating.');
+      return;
+    }
+
+    currentPlace = filtered[Math.floor(Math.random() * filtered.length)];
+    showResult(currentPlace);
+    setStatus(`${filtered.length} place${filtered.length !== 1 ? 's' : ''} matched · picked one for you`);
+  });
+}
+
+function reroll() {
+  if (!rawPool.length) { pickPlace(); return; }
+  applyFiltersToPool();
+}
+
+function priceLabel(level) {
+  return ['RM 1–20', 'RM 1–20', 'RM 20–40', 'RM 40–60', 'RM 60+'][level] ?? null;
+}
+
+function distKm(a, b, c, d) {
+  const R = 6371, dL = (c - a) * Math.PI / 180, dG = (d - b) * Math.PI / 180;
+  const x = Math.sin(dL / 2) ** 2 + Math.cos(a * Math.PI / 180) * Math.cos(c * Math.PI / 180) * Math.sin(dG / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+function showResult(p) {
+  const types = (p.types || []).filter(t => !['establishment', 'point_of_interest', 'food', 'restaurant'].includes(t));
+  document.getElementById('r-cat').textContent = types[0] ? types[0].replace(/_/g, ' ') : 'Restaurant';
+  document.getElementById('r-name').textContent = p.name;
+  document.getElementById('r-addr').textContent = p.vicinity || 'Address unavailable';
+
+  const chips = document.getElementById('r-chips');
+  chips.innerHTML = '';
+  if (p.rating) chips.innerHTML += `<span class="chip star">★ ${p.rating.toFixed(1)}</span>`;
+  if (p.user_ratings_total) chips.innerHTML += `<span class="chip">${p.user_ratings_total.toLocaleString()} reviews</span>`;
+  if (p.price_level !== undefined) {
+    const pl = priceLabel(p.price_level);
+    if (pl) chips.innerHTML += `<span class="chip">${pl}</span>`;
+  }
+  if (p.opening_hours) {
+    const open = p.opening_hours.open_now;
+    chips.innerHTML += `<span class="chip ${open ? 'green' : 'red'}">${open ? 'Open now' : 'Closed'}</span>`;
+  }
+
+  const geo = p.geometry?.location;
+  const distEl = document.getElementById('r-dist');
+  if (geo && userLat) {
+    const d = distKm(userLat, userLng, geo.lat(), geo.lng());
+    distEl.textContent = d < 1 ? `${Math.round(d * 1000)} m away` : `${d.toFixed(1)} km away`;
+  } else {
+    distEl.textContent = '';
+  }
+
+  document.getElementById('result-card').classList.add('show');
+}
+
+function openMaps() {
+  if (!currentPlace) return;
+  const url = currentPlace.place_id
+    ? `https://www.google.com/maps/place/?q=place_id:${currentPlace.place_id}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentPlace.name)}`;
+  window.open(url, '_blank');
+}
+
+updateRadius(5);
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXFBypFW7UhyjzjgYHLL2nnAG6gf4Igio&libraries=places&callback=initMap&loading=async" defer></script>
+
+</body>
+</html>
