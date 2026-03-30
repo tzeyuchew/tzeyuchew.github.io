@@ -4,220 +4,576 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Food Picker</title>
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   :root {
-    --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
-    --text: #1a1a1a; --text2: #6b6b6b; --text3: #a0a09a;
-    --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
-    --radius: 10px; --radius-lg: 16px;
-    --green-bg: #EAF3DE; --green-text: #3B6D11;
-    --red-bg: #FCEBEB; --red-text: #A32D2D;
-    --yellow-bg: #FAEEDA; --yellow-text: #854F0B;
-    --blue-bg: #E6F1FB; --blue-text: #185FA5;
+    --chili: #E8320A;
+    --chili-dark: #bf2708;
+    --chili-light: #FDEEE9;
+    --saffron: #F5A623;
+    --saffron-light: #FEF3DC;
+    --pandan: #2D8B55;
+    --pandan-light: #E3F5EC;
+    --sky: #1976D2;
+    --sky-light: #E3F0FD;
+
+    --ink: #1A120B;
+    --ink2: #5C4033;
+    --ink3: #9E7B6A;
+
+    --paper: #FDF8F3;
+    --paper2: #F5EDE3;
+    --paper3: #EDE0D4;
+
+    --border: rgba(92,64,51,0.12);
+    --border2: rgba(92,64,51,0.22);
+    --radius: 12px;
+    --radius-lg: 20px;
+
+    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
+
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1c; --bg2: #252525; --bg3: #2e2e2e;
-      --text: #f0f0ee; --text2: #a0a09a; --text3: #6b6b6b;
-      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.20);
-      --green-bg: #173404; --green-text: #C0DD97;
-      --red-bg: #501313; --red-text: #F7C1C1;
-      --yellow-bg: #412402; --yellow-text: #FAC775;
-      --blue-bg: #042C53; --blue-text: #B5D4F4;
+      --ink: #F5EDE3;
+      --ink2: #C4A98F;
+      --ink3: #7A6155;
+      --paper: #1A120B;
+      --paper2: #231710;
+      --paper3: #2E1F15;
+      --border: rgba(196,169,143,0.12);
+      --border2: rgba(196,169,143,0.22);
+      --chili-light: #3D1409;
+      --saffron-light: #3A2100;
+      --pandan-light: #0B2C1A;
+      --sky-light: #062240;
     }
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); min-height: 100vh; display: flex; justify-content: center; padding: 2rem 1rem 4rem; }
-  .app { background: var(--bg); border-radius: 24px; padding: 2rem 1.75rem; width: 100%; max-width: 420px; height: fit-content; border: 0.5px solid var(--border); }
-  .logo { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 1.5rem; }
-  h1 { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.15; margin-bottom: 0.3rem; }
-  .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
-  .section { margin-bottom: 1.5rem; }
-  .label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
-  .label .val { font-size: 13px; font-weight: 600; color: var(--text); text-transform: none; letter-spacing: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--paper3);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+    /* subtle noise texture */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  .app {
+    background: var(--paper);
+    border-radius: 28px;
+    padding: 0;
+    width: 100%;
+    max-width: 420px;
+    height: fit-content;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(26,18,11,0.12), 0 2px 8px rgba(26,18,11,0.06);
+  }
+
+  /* Header band */
+  .header-band {
+    background: var(--chili);
+    padding: 1.5rem 1.75rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-band::before {
+    content: '🍜';
+    position: absolute;
+    right: -8px;
+    top: -12px;
+    font-size: 90px;
+    opacity: 0.15;
+    transform: rotate(-15deg);
+    pointer-events: none;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.72);
+    font-weight: 400;
+  }
+
+  /* Body padding */
+  .body-pad { padding: 1.5rem 1.75rem; }
+
+  .section { margin-bottom: 1.4rem; }
+
+  .label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .label .val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-display);
+  }
 
   /* Location */
-  .loc-box { border: 0.5px solid var(--border2); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.5rem; }
-  .loc-detect { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--bg); transition: background 0.15s; user-select: none; -webkit-tap-highlight-color: transparent; }
-  .loc-detect:hover { background: var(--bg2); }
-  .loc-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--bg2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.3s; }
+  .loc-box {
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 1.4rem;
+    background: var(--paper2);
+  }
+  .loc-detect {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: transparent;
+    transition: background 0.15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .loc-detect:hover { background: var(--paper3); }
+  .loc-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--paper3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.3s;
+    color: var(--ink3);
+  }
   .loc-body { flex: 1; min-width: 0; }
-  .loc-title { font-size: 14px; font-weight: 500; color: var(--text); }
-  .loc-sub { font-size: 12px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .loc-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .loc-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Radius slider */
-  input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--bg3); border-radius: 2px; outline: none; border: none; cursor: pointer; }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--text); cursor: pointer; }
-  input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--text); cursor: pointer; border: none; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--paper3);
+    border-radius: 2px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--chili);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(232,50,10,0.4);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--chili);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(232,50,10,0.4);
+  }
 
   /* Price buttons */
   .price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .price-btn {
-    padding: 10px 4px 8px; border: 0.5px solid var(--border); border-radius: var(--radius);
-    background: var(--bg2); color: var(--text3); font-size: 10px; font-family: inherit;
-    cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.5;
+    padding: 10px 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--paper2);
+    color: var(--ink3);
+    font-size: 10px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.5;
     -webkit-tap-highlight-color: transparent;
   }
-  .price-btn .tier { display: block; font-size: 11px; font-weight: 700; color: var(--text3); margin-bottom: 2px; transition: color 0.15s; }
-  .price-btn.active { border-color: var(--text); background: var(--bg); color: var(--text2); }
-  .price-btn.active .tier { color: var(--text); }
-  .price-hint { font-size: 11px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
-  .price-hint.warn { color: var(--yellow-text); background: var(--yellow-bg); padding: 7px 10px; border-radius: 6px; margin-top: 8px; }
+  .price-btn .tier {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink3);
+    margin-bottom: 2px;
+    transition: color 0.15s;
+  }
+  .price-btn.active {
+    border-color: var(--chili);
+    background: var(--chili-light);
+    color: var(--chili-dark);
+  }
+  .price-btn.active .tier { color: var(--chili); }
+  .price-hint { font-size: 11px; color: var(--ink3); margin-top: 8px; line-height: 1.5; }
+  .price-hint.warn { color: var(--saffron); background: var(--saffron-light); padding: 7px 10px; border-radius: 8px; margin-top: 8px; }
 
   /* Rating buttons */
   .rating-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .rating-btn { padding: 8px 4px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg2); color: var(--text3); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s; text-align: center; -webkit-tap-highlight-color: transparent; }
-  .rating-btn.active { border-color: var(--yellow-text); background: var(--yellow-bg); color: var(--yellow-text); }
+  .rating-btn {
+    padding: 9px 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--paper2);
+    color: var(--ink3);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rating-btn.active {
+    border-color: var(--saffron);
+    background: var(--saffron-light);
+    color: var(--saffron);
+  }
 
   /* Toggle */
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
-  .toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
-  .toggle-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-label { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .toggle-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+  .toggle { position: relative; width: 46px; height: 27px; flex-shrink: 0; }
   .toggle input { opacity: 0; width: 0; height: 0; }
-  .track { position: absolute; inset: 0; border-radius: 13px; background: var(--border2); cursor: pointer; transition: background 0.2s; }
-  .track::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; border-radius: 50%; background: white; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
-  .toggle input:checked + .track { background: var(--text); }
-  .toggle input:checked + .track::before { transform: translateX(18px); }
+  .track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: var(--border2);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .track::before {
+    content: '';
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  .toggle input:checked + .track { background: var(--chili); }
+  .toggle input:checked + .track::before { transform: translateX(19px); }
 
   /* Pick button */
-  .pick-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: var(--radius-lg); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 1.75rem; transition: opacity 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
-  .pick-btn:hover { opacity: 0.88; }
-  .pick-btn:active { transform: scale(0.98); }
-  .pick-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .pick-btn {
+    width: 100%;
+    padding: 17px;
+    background: var(--chili);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 16px rgba(232,50,10,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .pick-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .pick-btn:hover { opacity: 0.92; box-shadow: 0 6px 20px rgba(232,50,10,0.45); transform: translateY(-1px); }
+  .pick-btn:active { transform: scale(0.98) translateY(0); box-shadow: 0 2px 8px rgba(232,50,10,0.3); }
+  .pick-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .status { font-size: 13px; color: var(--text3); text-align: center; margin-top: 1rem; min-height: 20px; }
-  .error { font-size: 13px; color: var(--red-text); background: var(--red-bg); padding: 10px 14px; border-radius: var(--radius); margin-top: 10px; display: none; line-height: 1.5; }
+  .status { font-size: 13px; color: var(--ink3); text-align: center; margin-top: 1rem; min-height: 20px; }
+
+  .error {
+    font-size: 13px;
+    color: var(--chili-dark);
+    background: var(--chili-light);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-top: 10px;
+    display: none;
+    line-height: 1.5;
+    border: 1px solid rgba(232,50,10,0.15);
+  }
 
   /* Result card */
-  .result-card { margin-top: 1.5rem; border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; display: none; }
-  .result-card.show { display: block; animation: up 0.35s cubic-bezier(0.16,1,0.3,1); }
-  @keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  .result-header { padding: 1.25rem 1.25rem 0.75rem; }
-  .result-cat { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; background: var(--bg2); color: var(--text3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .result-name { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 6px; }
-  .result-addr { font-size: 13px; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .chip { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2); }
-  .chip.green { background: var(--green-bg); color: var(--green-text); border-color: transparent; }
-  .chip.red { background: var(--red-bg); color: var(--red-text); border-color: transparent; }
-  .chip.star { background: var(--yellow-bg); color: var(--yellow-text); border-color: transparent; }
-  .chip.gray { background: var(--bg2); color: var(--text3); border-color: transparent; font-style: italic; }
-  .result-dist { font-size: 13px; color: var(--text3); padding: 8px 1.25rem 1rem; }
-  .result-actions { border-top: 0.5px solid var(--border); }
-  .action-btn { width: 100%; padding: 14px 10px; font-size: 13px; font-weight: 600; font-family: inherit; border: none; background: transparent; color: var(--text); cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; text-align: center; display: block; }
-  .action-btn:hover { background: var(--bg2); }
-  .action-btn:active { background: var(--bg3); }
+  .result-card {
+    margin-top: 1.5rem;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: none;
+    background: var(--paper2);
+  }
+  .result-card.show { display: block; animation: up 0.4s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
-  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border2); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  .result-accent {
+    height: 4px;
+    background: linear-gradient(90deg, var(--chili), var(--saffron));
+  }
+
+  .result-header { padding: 1.25rem 1.25rem 0.75rem; }
+
+  .result-cat {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--paper3);
+    color: var(--ink3);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .result-name {
+    font-family: var(--font-display);
+    font-size: 23px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .result-addr { font-size: 13px; color: var(--ink2); margin-bottom: 14px; line-height: 1.5; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--ink2);
+  }
+  .chip.green { background: var(--pandan-light); color: var(--pandan); border-color: transparent; }
+  .chip.red { background: var(--chili-light); color: var(--chili); border-color: transparent; }
+  .chip.star { background: var(--saffron-light); color: var(--saffron); border-color: transparent; font-weight: 700; }
+  .chip.gray { background: var(--paper3); color: var(--ink3); border-color: transparent; font-style: italic; }
+
+  .result-dist {
+    font-size: 13px;
+    color: var(--ink3);
+    padding: 4px 1.25rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .result-dist::before { content: '📍'; font-size: 12px; }
+
+  .result-actions { border-top: 1px solid var(--border); }
+
+  .action-btn {
+    width: 100%;
+    padding: 14px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    border: none;
+    background: transparent;
+    color: var(--chili);
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+    display: block;
+    letter-spacing: 0.01em;
+  }
+  .action-btn:hover { background: var(--chili-light); }
+  .action-btn:active { background: var(--paper3); }
+
+  .spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--chili);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .note { font-size: 11px; color: var(--text3); line-height: 1.6; padding: 10px 12px; background: var(--bg2); border-radius: var(--radius); margin-top: 1.5rem; }
-  .note a { color: var(--text2); }
+
+  .note {
+    font-size: 11px;
+    color: var(--ink3);
+    line-height: 1.6;
+    padding: 10px 12px;
+    background: var(--paper2);
+    border-radius: var(--radius);
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+  }
+  .note a { color: var(--ink2); }
+
+  /* divider between header band and body */
+  .divider { height: 1px; background: var(--border); }
+
   #map { display: none; }
 
   @media (max-width: 480px) {
     body { padding: 0; }
-    .app { border-radius: 0; min-height: 100vh; border: none; max-width: 100%; }
+    .app { border-radius: 0; min-height: 100vh; border: none; max-width: 100%; box-shadow: none; }
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="logo">Food Picker</div>
-  <h1>What should<br>I eat today?</h1>
-  <p class="subtitle">Set your filters, we'll pick a place.</p>
 
-  <!-- Location -->
-  <div class="loc-box">
-    <div class="loc-detect" onclick="getLocation()">
-      <div class="loc-icon" id="loc-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-        </svg>
+  <!-- Header -->
+  <div class="header-band">
+    <div class="logo">Food Picker</div>
+    <h1>Where should<br>I eat today?</h1>
+    <p class="subtitle">Set your filters, we'll pick a place.</p>
+  </div>
+
+  <div class="body-pad">
+
+    <!-- Location -->
+    <div class="loc-box">
+      <div class="loc-detect" onclick="getLocation()">
+        <div class="loc-icon" id="loc-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          </svg>
+        </div>
+        <div class="loc-body">
+          <div class="loc-title" id="loc-title">Detect my location</div>
+          <div class="loc-sub" id="loc-sub">Tap to use GPS</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink3);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-      <div class="loc-body">
-        <div class="loc-title" id="loc-title">Detect my location</div>
-        <div class="loc-sub" id="loc-sub">Tap to use GPS</div>
+    </div>
+
+    <!-- Radius -->
+    <div class="section">
+      <div class="label">Search radius <span class="val" id="radius-val">1.0 km</span></div>
+      <input type="range" min="1" max="20" value="5" step="1" id="radius-slider" oninput="updateRadius(this.value)">
+    </div>
+
+    <!-- Price range -->
+    <div class="section">
+      <div class="label" style="margin-bottom:10px;">
+        Price range
+        <span style="font-size:11px;font-weight:400;color:var(--ink3);text-transform:none;letter-spacing:0;">optional</span>
       </div>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-    </div>
-  </div>
-
-  <!-- Radius -->
-  <div class="section">
-    <div class="label">Search radius <span class="val" id="radius-val">1.0 km</span></div>
-    <input type="range" min="1" max="20" value="5" step="1" id="radius-slider" oninput="updateRadius(this.value)">
-  </div>
-
-  <!-- Price range buttons, none selected by default -->
-  <div class="section">
-    <div class="label" style="margin-bottom:10px;">
-      Price range
-      <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">optional</span>
-    </div>
-    <div class="price-grid">
-      <button class="price-btn" data-price="1" onclick="togglePrice(this)"><span class="tier">RM 1–20</span>Budget</button>
-      <button class="price-btn" data-price="2" onclick="togglePrice(this)"><span class="tier">RM 20–40</span>Casual</button>
-      <button class="price-btn" data-price="3" onclick="togglePrice(this)"><span class="tier">RM 40–60</span>Mid-range</button>
-      <button class="price-btn" data-price="4" onclick="togglePrice(this)"><span class="tier">RM 60+</span>Splurge</button>
-    </div>
-    <div class="price-hint" id="price-hint">No filter — picks from all price ranges nearby.</div>
-  </div>
-
-  <!-- Minimum rating -->
-  <div class="section">
-    <div class="label" style="margin-bottom:10px;">
-      Minimum rating
-      <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">optional</span>
-    </div>
-    <div class="rating-grid">
-      <button class="rating-btn active" data-rating="0" onclick="setRating(this)">Any</button>
-      <button class="rating-btn" data-rating="3" onclick="setRating(this)">3.0+</button>
-      <button class="rating-btn" data-rating="3.5" onclick="setRating(this)">3.5+</button>
-      <button class="rating-btn" data-rating="4" onclick="setRating(this)">4.0+</button>
-      <button class="rating-btn" data-rating="4.5" onclick="setRating(this)">4.5+</button>
-    </div>
-  </div>
-
-  <!-- Open now -->
-  <div class="section">
-    <div class="toggle-row">
-      <div>
-        <div class="toggle-label">Open now only</div>
-        <div class="toggle-sub">Hide places that are currently closed</div>
+      <div class="price-grid">
+        <button class="price-btn" data-price="1" onclick="togglePrice(this)"><span class="tier">RM 1–20</span>Budget</button>
+        <button class="price-btn" data-price="2" onclick="togglePrice(this)"><span class="tier">RM 20–40</span>Casual</button>
+        <button class="price-btn" data-price="3" onclick="togglePrice(this)"><span class="tier">RM 40–60</span>Mid-range</button>
+        <button class="price-btn" data-price="4" onclick="togglePrice(this)"><span class="tier">RM 60+</span>Splurge</button>
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="open-now" checked onchange="invalidatePool()">
-        <span class="track"></span>
-      </label>
+      <div class="price-hint" id="price-hint">No filter — picks from all price ranges nearby.</div>
     </div>
-  </div>
 
-  <div id="error" class="error"></div>
-
-  <button class="pick-btn" id="pick-btn" onclick="pickPlace()" disabled>
-    Pick a place for me
-  </button>
-
-  <div class="status" id="status"></div>
-
-  <!-- Result -->
-  <div class="result-card" id="result-card">
-    <div class="result-header">
-      <div class="result-cat" id="r-cat">Restaurant</div>
-      <div class="result-name" id="r-name">—</div>
-      <div class="result-addr" id="r-addr">—</div>
-      <div class="chips" id="r-chips"></div>
+    <!-- Minimum rating -->
+    <div class="section">
+      <div class="label" style="margin-bottom:10px;">
+        Minimum rating
+        <span style="font-size:11px;font-weight:400;color:var(--ink3);text-transform:none;letter-spacing:0;">optional</span>
+      </div>
+      <div class="rating-grid">
+        <button class="rating-btn active" data-rating="0" onclick="setRating(this)">Any</button>
+        <button class="rating-btn" data-rating="3" onclick="setRating(this)">3.0+</button>
+        <button class="rating-btn" data-rating="3.5" onclick="setRating(this)">3.5+</button>
+        <button class="rating-btn" data-rating="4" onclick="setRating(this)">4.0+</button>
+        <button class="rating-btn" data-rating="4.5" onclick="setRating(this)">4.5+</button>
+      </div>
     </div>
-    <div class="result-dist" id="r-dist"></div>
-    <div class="result-actions">
-      <button class="action-btn" onclick="openMaps()">Open in Google Maps ↗</button>
-    </div>
-  </div>
 
-  <div class="note">
-    Powered by boredom, distraction, 3 full sessions on free Claude and free API calls from Google Map.· <a href="https://duriantruck.com/" target="_blank">Check durian truck homepage↗</a>
-  </div>
+    <!-- Open now -->
+    <div class="section">
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Open now only</div>
+          <div class="toggle-sub">Hide places that are currently closed</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="open-now" checked onchange="invalidatePool()">
+          <span class="track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <button class="pick-btn" id="pick-btn" onclick="pickPlace()" disabled>
+      Pick a place for me 🎲
+    </button>
+
+    <div class="status" id="status"></div>
+
+    <!-- Result -->
+    <div class="result-card" id="result-card">
+      <div class="result-accent"></div>
+      <div class="result-header">
+        <div class="result-cat" id="r-cat">Restaurant</div>
+        <div class="result-name" id="r-name">—</div>
+        <div class="result-addr" id="r-addr">—</div>
+        <div class="chips" id="r-chips"></div>
+      </div>
+      <div class="result-dist" id="r-dist"></div>
+      <div class="result-actions">
+        <button class="action-btn" onclick="openMaps()">Open in Google Maps ↗</button>
+      </div>
+    </div>
+
+    <div class="note">
+      Powered by boredom, distraction, 4 full sessions on free Claude which eventually leads to Pro plan sign up, and free API calls from Google Map. <a href="https://duriantruck.com" target="_blank">Check durian truck homepage ↗</a>
+    </div>
+
+  </div><!-- /body-pad -->
 </div>
 
 <div id="map"></div>
@@ -227,6 +583,29 @@ const API_KEY = 'AIzaSyDXFBypFW7UhyjzjgYHLL2nnAG6gf4Igio';
 let userLat = null, userLng = null, currentPlace = null, rawPool = [], service = null;
 let minRating = 0, poolValid = false;
 
+// ─── Random coordinate helper ─────────────────────────────────────────────────
+// Returns a random lat/lng within `maxMeters` of the given point.
+function randomCoordNear(lat, lng, maxMeters) {
+  const R = 6371000; // Earth radius in metres
+  const distance = Math.random() * maxMeters;
+  const bearing = Math.random() * 2 * Math.PI;
+  const latRad = lat * Math.PI / 180;
+  const lngRad = lng * Math.PI / 180;
+  const newLatRad = Math.asin(
+    Math.sin(latRad) * Math.cos(distance / R) +
+    Math.cos(latRad) * Math.sin(distance / R) * Math.cos(bearing)
+  );
+  const newLngRad = lngRad + Math.atan2(
+    Math.sin(bearing) * Math.sin(distance / R) * Math.cos(latRad),
+    Math.cos(distance / R) - Math.sin(latRad) * Math.sin(newLatRad)
+  );
+  return {
+    lat: newLatRad * 180 / Math.PI,
+    lng: newLngRad * 180 / Math.PI
+  };
+}
+
+// ─── Map init ─────────────────────────────────────────────────────────────────
 window.initMap = function () {
   try {
     const map = new google.maps.Map(document.getElementById('map'), { center: { lat: 3.139, lng: 101.686 }, zoom: 15 });
@@ -238,6 +617,7 @@ window.gm_authFailure = function () {
   showError('Google Maps auth failed. Check your API key in Google Cloud Console.');
 };
 
+// ─── Radius ───────────────────────────────────────────────────────────────────
 function updateRadius(v) {
   const km = v <= 5 ? (v * 0.2).toFixed(1) : ((v - 5) * 0.5 + 1).toFixed(1);
   document.getElementById('radius-val').textContent = km + ' km';
@@ -249,15 +629,14 @@ function getRadiusMeters() {
   return Math.round(km * 1000);
 }
 
+// ─── Price ────────────────────────────────────────────────────────────────────
 function getActivePrices() {
   return [...document.querySelectorAll('.price-btn.active')].map(b => parseInt(b.dataset.price));
 }
-
 function togglePrice(btn) {
   btn.classList.toggle('active');
   updatePriceHint();
 }
-
 function updatePriceHint() {
   const hint = document.getElementById('price-hint');
   const active = getActivePrices();
@@ -266,17 +645,19 @@ function updatePriceHint() {
     hint.textContent = 'No filter — picks from all price ranges nearby.';
   } else {
     hint.className = 'price-hint warn';
-    hint.textContent = 'Note: some places don\'t have price data on Google Maps and may still appear in results. Look out for the "Price unknown" tag on the result card.';
+    hint.textContent = 'Note: some places don\'t have price data on Google Maps and may still appear. Look out for the "Price unknown" tag.';
   }
 }
 
+// ─── Rating ───────────────────────────────────────────────────────────────────
 function setRating(btn) {
   document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   minRating = parseFloat(btn.dataset.rating);
 }
 
-function invalidatePool() { poolValid = false; }
+// ─── Pool / cache ─────────────────────────────────────────────────────────────
+function invalidatePool() { poolValid = false; rawPool = []; }
 function checkReady() {
   document.getElementById('pick-btn').disabled = !(userLat !== null && service !== null);
 }
@@ -290,16 +671,19 @@ function setStatus(msg, loading = false) {
     ? `<span class="spinner"></span>${msg}` : msg;
 }
 
+// ─── Location ─────────────────────────────────────────────────────────────────
 function getLocation() {
   const icon = document.getElementById('loc-icon');
   const title = document.getElementById('loc-title');
   const sub = document.getElementById('loc-sub');
-  icon.style.background = 'var(--yellow-bg)';
+  icon.style.background = 'var(--saffron-light)';
+  icon.style.color = 'var(--saffron)';
   title.textContent = 'Detecting location…';
   sub.textContent = 'Allow permission if prompted';
   showError('');
   if (!navigator.geolocation) {
-    icon.style.background = 'var(--red-bg)';
+    icon.style.background = 'var(--chili-light)';
+    icon.style.color = 'var(--chili)';
     title.textContent = 'GPS not supported';
     sub.textContent = 'Try Chrome or Edge';
     return;
@@ -308,14 +692,16 @@ function getLocation() {
     pos => {
       userLat = pos.coords.latitude;
       userLng = pos.coords.longitude;
-      icon.style.background = 'var(--green-bg)';
+      icon.style.background = 'var(--pandan-light)';
+      icon.style.color = 'var(--pandan)';
       title.textContent = 'Location detected';
       sub.textContent = `${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
       invalidatePool();
       checkReady();
     },
     () => {
-      icon.style.background = 'var(--red-bg)';
+      icon.style.background = 'var(--chili-light)';
+      icon.style.color = 'var(--chili)';
       title.textContent = 'Location blocked';
       sub.textContent = 'Check browser permissions and try again';
       showError('Location access denied. Click the lock icon in your browser address bar, allow location, then tap again.');
@@ -324,17 +710,16 @@ function getLocation() {
   );
 }
 
+// ─── Filter & pick from pool ──────────────────────────────────────────────────
 function applyFiltersAndPick(pool) {
   const activePrices = getActivePrices();
   let filtered = pool;
 
   if (activePrices.length > 0) {
-    // Include places that match selected tiers OR have no price data at all
     filtered = filtered.filter(p =>
       p.price_level === undefined || activePrices.includes(p.price_level)
     );
   }
-  // If no price filter selected, include everything
 
   if (minRating > 0) {
     const rf = filtered.filter(p => p.rating && p.rating >= minRating);
@@ -344,6 +729,7 @@ function applyFiltersAndPick(pool) {
   if (!filtered.length) {
     showError('No places match your current filters. Try widening the price range, lowering the minimum rating, or increasing the search radius.');
     setStatus('');
+    document.getElementById('pick-btn').disabled = false;
     return;
   }
 
@@ -354,25 +740,76 @@ function applyFiltersAndPick(pool) {
   document.getElementById('result-card').classList.remove('show');
   setTimeout(() => {
     showResult(currentPlace);
-    setStatus(`${filtered.length} place${filtered.length !== 1 ? 's' : ''} matched · tap again for another pick`);
+    setStatus('');
+    document.getElementById('pick-btn').disabled = false;
   }, 80);
 }
 
-function pickPlace() {
-  if (!userLat || !service) return;
-  showError('');
-
-  // Re-use pool if valid (radius + open-now unchanged)
-  if (poolValid && rawPool.length > 0) {
-    applyFiltersAndPick(rawPool);
+// ─── Random-point search (the main approach) ──────────────────────────────────
+// Each click picks a random coordinate within (radius - 500m), searches 500m
+// around it, accumulates results into rawPool, then picks from the pool.
+// Falls back (up to 3 attempts) if the random spot returns nothing.
+function pickWithRandomPoint(attempt) {
+  if (attempt > 3) {
+    // All retries exhausted — fall back to searching from user location directly
+    pickFromUserLocation();
     return;
   }
 
-  const btn = document.getElementById('pick-btn');
-  btn.disabled = true;
-  setStatus('Searching nearby…', true);
-  document.getElementById('result-card').classList.remove('show');
+  const radiusMeters = getRadiusMeters();
+  const PROBE_RADIUS = 500; // metres around random point
+  // Ensure the random point stays within the user's radius
+  const wanderRadius = Math.max(0, radiusMeters - PROBE_RADIUS);
 
+  let searchLat, searchLng, searchRadius;
+  if (wanderRadius < 100) {
+    // Radius is very small — just search from user location
+    searchLat = userLat;
+    searchLng = userLng;
+    searchRadius = radiusMeters;
+  } else {
+    const point = randomCoordNear(userLat, userLng, wanderRadius);
+    searchLat = point.lat;
+    searchLng = point.lng;
+    searchRadius = PROBE_RADIUS;
+  }
+
+  const request = {
+    location: new google.maps.LatLng(searchLat, searchLng),
+    radius: searchRadius,
+    type: 'restaurant',
+    openNow: document.getElementById('open-now').checked,
+  };
+
+  service.nearbySearch(request, (results, status) => {
+    if (
+      status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS ||
+      !results?.length
+    ) {
+      // Retry with a different random point
+      setStatus(`Searching nearby… (attempt ${attempt + 1})`, true);
+      pickWithRandomPoint(attempt + 1);
+      return;
+    }
+    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+      document.getElementById('pick-btn').disabled = false;
+      setStatus('');
+      showError('Places API error: ' + status);
+      return;
+    }
+
+    // Merge new results into pool, deduplicating by place_id
+    const existingIds = new Set(rawPool.map(p => p.place_id));
+    const fresh = results.filter(p => !existingIds.has(p.place_id));
+    rawPool = [...rawPool, ...fresh];
+    poolValid = true;
+
+    applyFiltersAndPick(rawPool);
+  });
+}
+
+// ─── Fallback: search from user's exact location ──────────────────────────────
+function pickFromUserLocation() {
   const request = {
     location: new google.maps.LatLng(userLat, userLng),
     radius: getRadiusMeters(),
@@ -381,7 +818,7 @@ function pickPlace() {
   };
 
   service.nearbySearch(request, (results, status) => {
-    btn.disabled = false;
+    document.getElementById('pick-btn').disabled = false;
     if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS || !results?.length) {
       setStatus('');
       showError('No restaurants found. Try a wider radius or turning off "Open now".');
@@ -392,12 +829,31 @@ function pickPlace() {
       showError('Places API error: ' + status);
       return;
     }
-    rawPool = results;
+    const existingIds = new Set(rawPool.map(p => p.place_id));
+    const fresh = results.filter(p => !existingIds.has(p.place_id));
+    rawPool = [...rawPool, ...fresh];
     poolValid = true;
     applyFiltersAndPick(rawPool);
   });
 }
 
+// ─── Main pick entry point ────────────────────────────────────────────────────
+function pickPlace() {
+  if (!userLat || !service) return;
+  showError('');
+
+  const btn = document.getElementById('pick-btn');
+  btn.disabled = true;
+  setStatus('Searching nearby…', true);
+  document.getElementById('result-card').classList.remove('show');
+
+  // Always do a fresh random-point search on each click.
+  // If we already have a pool from this session, it will be merged/extended;
+  // but the random probe means each tap explores a fresh corner of the area.
+  pickWithRandomPoint(1);
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function priceLabel(level) {
   return [null, 'RM 1–20', 'RM 20–40', 'RM 40–60', 'RM 60+'][level] ?? null;
 }
